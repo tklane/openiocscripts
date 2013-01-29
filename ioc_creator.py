@@ -49,10 +49,13 @@ def main():
 			for line in fileinput.input(inputfile):
 				line = line.rstrip()
 				if  re.search('[a-f0-9]{32}',line):
-					md5TermPopulate(line,f)
+					term = re.search('[a-f0-9]{32}',line)
+					md5TermPopulate(term.group(0),f)
 				elif re.search('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}',line):
-					ipTermPopulate(line,f)
+					term = re.search('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}',line)
+					ipTermPopulate(term.group(0),f)
 				elif re.search('^[a-zA-Z\d-]{,63}(\.[a-zA-Z\d-]{,63}).', line):
+					term = re.search('^[a-zA-Z\d-]{,63}(\.[a-zA-Z\d-]{,63}).', line)
 					domainTermPopulate(line,f)
 
 			printIOCFooter(f)
