@@ -56,6 +56,7 @@ def main():
 
 			for line in fileinput.input(inputfile):
 				line = line.rstrip()
+				print line
 				if  re.search('[a-f0-9]{32}',line):
 					term = re.search('[a-f0-9]{32}',line)
 					if term.group(0) not in termlist:
