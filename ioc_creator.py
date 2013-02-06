@@ -63,17 +63,22 @@ def main():
 						termlist.append(term.group(0))
 						md5TermPopulate(term.group(0),f)
 						#print "md5ioc - " + term.group(0)
-				if re.search('\\\\[a-zA-Z0-9]',line) and not re.search('HKLM',line) and not re.search('HKEY',line) and not re.search('HKCU',line):
-					term = line.split(' ')
-					term = re.sub('[a-zA-Z]:','',term[0])
+				if re.search('\\\\[a-zA-Z0-9]',line) and not re.search('HKLM',line) and not re.search('HKEY',line) and not re.search('HKCU',line) and not re.search('SYSTEM',line):
+					termssplit = line.split(' ')
+					for termssplits in termssplit:
+						if re.search('\\\\[a-zA-Z0-9]',termssplits):
+							term = termssplits 
+							term = re.sub('[a-zA-Z]:','',term)
 					if term not in termlist:
 						termlist.append(term)
 						fileTermPopulate(term,f)
 						#print "fileioc - " + term
-				if re.search('HKLM',line) or re.search('HKCU',line) or re.search('HKEY',line):
-					term = line
-					term = line.split(' ')
-					term = re.sub('HKLM\\\\|HKCU\\\\|hklm\\\\\|hkcu\\\\|SYSTEM|system','',term[0])
+				if re.search('HKLM',line) or re.search('HKCU',line) or re.search('HKEY',line) or re.search('SYSTEM',line):
+					termssplit = line.split(' ')
+					for termssplits in termssplit:
+						if re.search('HKLM',termssplits) or re.search('HKCU',termssplits) or re.search('HKEY',termssplits) or re.search('SYSTEM',termssplits):
+							term = termssplits
+							term = re.sub('HKLM\\\\|HKCU\\\\|hklm\\\\\|hkcu\\\\|SYSTEM\\\\|system\\\\','',term)
 					if term not in termlist:
 						termlist.append(term)
 						regTermPopulate(term,f )
@@ -84,7 +89,7 @@ def main():
 						termlist.append(term.group(0))
 						ipTermPopulate(term.group(0),f)
 						#print "ipIOC - " + term.group(0)
-				if re.search('[a-zA-Z\d-]{2,63}(\.[a-zA-Z\d-]{2,63}).', line) and not re.search('.exe',line) and not re.search('.dll',line):
+				if re.search('[a-zA-Z\d-]{2,63}(\.[a-zA-Z\d-]{2,63}).', line) and not re.search('.exe',line,re.IGNORECASE) and not re.search('.dll',line,re.IGNORECASE) and not re.search('.pdf',line,re.IGNORECASE) and not re.search('.doc',line,re.IGNORECASE):
 					term = re.search('[a-zA-Z\d-]{2,63}(\.[a-zA-Z\d-]{2,63}).', line)
 					termssplit = line.split(' ')
 					for termssplits in termssplit:
