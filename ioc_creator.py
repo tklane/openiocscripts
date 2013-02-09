@@ -57,8 +57,8 @@ def main():
 			for line in fileinput.input(inputfile):
 				line = line.rstrip()
 	
-				if  re.search('[a-f0-9]{32}',line):
-					term = re.search('[a-f0-9]{32}',line)
+				if  re.search('[a-fA-F0-9]{32}',line):
+					term = re.search('[a-fA-F0-9]{32}',line)
 					if term.group(0) not in termlist:
 						termlist.append(term.group(0))
 						md5TermPopulate(term.group(0),f)
@@ -92,13 +92,14 @@ def main():
 				if re.search('[a-zA-Z\d-]{2,63}(\.[a-zA-Z\d-]{2,63}).', line) and not re.search('.exe',line,re.IGNORECASE) and not re.search('.dll',line,re.IGNORECASE) and not re.search('.pdf',line,re.IGNORECASE) and not re.search('.doc',line,re.IGNORECASE):
 					term = re.search('[a-zA-Z\d-]{2,63}(\.[a-zA-Z\d-]{2,63}).', line)
 					termssplit = line.split(' ')
+
 					for termssplits in termssplit:
 							if not re.search('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}',termssplits) and re.search('[a-zA-Z\d-]{2,63}(\.[a-zA-Z\d-]{2,63}).', termssplits):
 								thisterm = termssplits
 								thisterm = thisterm.rstrip('.')
-					if thisterm not in termlist:
-							termlist.append(thisterm)
-							domainTermPopulate(thisterm,f)
+								if thisterm not in termlist:
+									termlist.append(thisterm)
+									domainTermPopulate(thisterm,f)
 							#print "domainIOC - " + thisterm
 
 			printIOCFooter(f)
