@@ -7,7 +7,7 @@ from datetime import datetime
 
 def printIOCHeader(f):
 	 f.write('<?xml version="1.0" encoding="us-ascii"?>\n')
-	 f.write('<ioc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="'+f.name+'" last-modified="'+datetime.now().replace(microsecond=0).isoformat()+'" xmlns="http://schemas.mandiant.com/2010/ioc">\n')
+	 f.write('<ioc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="'+f.name.rstrip(".ioc")+'" last-modified="'+datetime.now().replace(microsecond=0).isoformat()+'" xmlns="http://schemas.mandiant.com/2010/ioc">\n')
 	 f.write('\t<short_description>Bulk (IMPORTER)</short_description>\n')
 	 f.write('\t<description>Bulk Import - Remember to clean and lint  your IOCs</description>\n')
 	 f.write('\t<authored_by>BulkImport</authored_by>\n')
