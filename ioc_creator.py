@@ -7,7 +7,7 @@ from datetime import datetime
 
 def printIOCHeader(f):
 	 f.write('<?xml version="1.0" encoding="us-ascii"?>\n')
-	 f.write('<ioc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="'+f.name+'" last-modified="'+datetime.now().replace(microsecond=0).isoformat()+'" xmlns="http://schemas.mandiant.com/2010/ioc">\n')
+	 f.write('<ioc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="'+f.name.rstrip(".ioc")+'" last-modified="'+datetime.now().replace(microsecond=0).isoformat()+'" xmlns="http://schemas.mandiant.com/2010/ioc">\n')
 	 f.write('\t<short_description>Bulk (IMPORTER)</short_description>\n')
 	 f.write('\t<description>Bulk Import - Remember to clean and lint  your IOCs</description>\n')
 	 f.write('\t<authored_by>BulkImport</authored_by>\n')
@@ -36,11 +36,11 @@ def ipTermPopulate(line,f):
 def fileTermPopulate(line,f):
 	f.write('\t\t\t<IndicatorItem id="'+str(uuid.uuid4())+'" condition="contains">\n\t\t\t\t<Context document="FileItem" search="FileItem/FullPath" type="mir" />\n\t\t\t\t<Content type="string">'+ line.rstrip()+'</Content>\n\t\t\t</IndicatorItem>\n')
 
+def fileNamePopulate(line,f):
+	f.write('\t\t\t<IndicatorItem id="'+str(uuid.uuid4())+'" condition="contains">\n\t\t\t\t<Context document="FileItem" search="FileItem/FileName" type="mir" />\n\t\t\t\t<Content type="string">'+ line.rstrip()+'</Content>\n\t\t\t</IndicatorItem>\n')
+	
 def regTermPopulate(line,f):
 	f.write('\t\t\t<IndicatorItem id="'+str(uuid.uuid4())+'" condition="contains">\n\t\t\t\t<Context document="RegistryItem" search="RegistryItem/Path" type="mir" />\n\t\t\t\t<Content type="string">'+ line.rstrip()+'</Content>\n\t\t\t</IndicatorItem>\n')
-
-def emailTermPopulate(line,f):
-    f.write('\t\t\t<IndicatorItem id="'+str(uuid.uuid4())+'" condition="contains">\n\t\t\t\t<Context document="Email" search="Email/From" type="mir" />\n\t\t\t\t<Content type="string">'+ line.rstrip() + '</Content>\n\t\t\t\t</IndicatorItem>\n')
 
 def main():
 	parser = optparse.OptionParser('usage %prog -f <input file>')
@@ -66,11 +66,12 @@ def main():
 						termlist.append(term.group(0))
 						md5TermPopulate(term.group(0),f)
 						#print "md5ioc - " + term.group(0)
-				if re.search('^[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$',line):
-					term = re.search('^[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$',line)
-					if term.group(0) not in termlist:
-						termlist.append(term.group(0))
-						emailTermPopulate(term.group(0),f)
+				if re.search('[a-zA-Z\d-]{1,63}(\.[a-zA-Z]{3})', line):
+					if (re.search('.exe', line,re.IGNORECASE) or re.search('.dll', line,re.IGNORECASE) or re.search('.bat', line,re.IGNORECASE) or re.search('.tmp', line,re.IGNORECASE) or re.search('.rar', line,re.IGNORECASE)):
+						term = re.search('[a-zA-Z\d-]{1,63}(\.[a-zA-Z]{3})', line)
+						if term.group(0) not in termlist:
+							termlist.append(term.group(0))
+							fileNamePopulate(term.group(0),f)
 				if re.search('\\\\[a-zA-Z0-9]',line) and not re.search('HKLM',line) and not re.search('HKEY',line) and not re.search('HKCU',line) and not re.search('SYSTEM',line):
 					termssplit = line.split(' ')
 					for termssplits in termssplit:
@@ -109,7 +110,6 @@ def main():
 									termlist.append(thisterm)
 									domainTermPopulate(thisterm,f)
 							#print "domainIOC - " + thisterm
-
 			printIOCFooter(f)
 			f.close()
 		except Exception, e:
