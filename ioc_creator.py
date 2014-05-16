@@ -36,6 +36,9 @@ def ipTermPopulate(line,f):
 def fileTermPopulate(line,f):
 	f.write('\t\t\t<IndicatorItem id="'+str(uuid.uuid4())+'" condition="contains">\n\t\t\t\t<Context document="FileItem" search="FileItem/FullPath" type="mir" />\n\t\t\t\t<Content type="string">'+ line.rstrip()+'</Content>\n\t\t\t</IndicatorItem>\n')
 
+def fileNamePopulate(line,f):
+	f.write('\t\t\t<IndicatorItem id="'+str(uuid.uuid4())+'" condition="contains">\n\t\t\t\t<Context document="FileItem" search="FileItem/FileName" type="mir" />\n\t\t\t\t<Content type="string">'+ line.rstrip()+'</Content>\n\t\t\t</IndicatorItem>\n')
+	
 def regTermPopulate(line,f):
 	f.write('\t\t\t<IndicatorItem id="'+str(uuid.uuid4())+'" condition="contains">\n\t\t\t\t<Context document="RegistryItem" search="RegistryItem/Path" type="mir" />\n\t\t\t\t<Content type="string">'+ line.rstrip()+'</Content>\n\t\t\t</IndicatorItem>\n')
 
@@ -57,12 +60,18 @@ def main():
 			for line in fileinput.input(inputfile):
 				line = line.rstrip()
 	
-				if  re.search('[a-fA-F0-9]{32}',line):
+				if re.search('[a-fA-F0-9]{32}',line):
 					term = re.search('[a-fA-F0-9]{32}',line)
 					if term.group(0) not in termlist:
 						termlist.append(term.group(0))
 						md5TermPopulate(term.group(0),f)
 						#print "md5ioc - " + term.group(0)
+				if re.search('[a-zA-Z\d-]{1,63}(\.[a-zA-Z]{3})', line):
+					if (re.search('.exe', line,re.IGNORECASE) or re.search('.dll', line,re.IGNORECASE) or re.search('.bat', line,re.IGNORECASE) or re.search('.tmp', line,re.IGNORECASE) or re.search('.rar', line,re.IGNORECASE)):
+						term = re.search('[a-zA-Z\d-]{1,63}(\.[a-zA-Z]{3})', line)
+						if term.group(0) not in termlist:
+							termlist.append(term.group(0))
+							fileNamePopulate(term.group(0),f)
 				if re.search('\\\\[a-zA-Z0-9]',line) and not re.search('HKLM',line) and not re.search('HKEY',line) and not re.search('HKCU',line) and not re.search('SYSTEM',line):
 					termssplit = line.split(' ')
 					for termssplits in termssplit:
@@ -101,7 +110,6 @@ def main():
 									termlist.append(thisterm)
 									domainTermPopulate(thisterm,f)
 							#print "domainIOC - " + thisterm
-
 			printIOCFooter(f)
 			f.close()
 		except Exception, e:
