@@ -66,6 +66,9 @@ def regTermPopulate(line, f):
     f.write('\t\t\t<IndicatorItem id="' + str(
         uuid.uuid4()) + '" condition="contains">\n\t\t\t\t<Context document="RegistryItem" search="RegistryItem/Path" type="mir" />\n\t\t\t\t<Content type="string">' + line.rstrip() + '</Content>\n\t\t\t</IndicatorItem>\n')
 
+def emailTermPopulate(line,f):
+    f.write('\t\t\t<IndicatorItem id="'+str(uuid.uuid4())+'" condition="contains">\n\t\t\t\t<Context document="Email" search="Email/From" type="mir" />\n\t\t\t\t<Content type="string">'+ line.rstrip() + '</Content>\n\t\t\t\t</IndicatorItem>\n')
+
 
 def main():
     parser = optparse.OptionParser('usage %prog -f <input file>')
@@ -96,6 +99,11 @@ def main():
                         if len(term.group(0)) == 32:
                             md5TermPopulate(term.group(0), f)
                         #print "sha256/1/md5ioc - " + term.group(0)
+                if re.search('^[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$',line):
+                    term = re.search('^[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$',line)
+                    if term.group(0) not in termlist:
+                        termlist.append(term.group(0))
+                        emailTermPopulate(term.group(0),f)
                 if re.search('\\\\[a-zA-Z0-9]', line) and not re.search('HKLM', line) and not re.search('HKEY',
                                                                                                         line) and not re.search(
                         'HKCU', line) and not re.search('SYSTEM', line):
